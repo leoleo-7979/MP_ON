@@ -1,0 +1,243 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>사무실 복귀시간 입력</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4419B5">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="매니저업무">
+<style>
+:root{--pink:#4419B5;--purple:#7B57E8;--lav:#9B86F2;--peach:#C9BFFF;--ink:#2A2140;--sub:#7A72A0;--line:#E4DBFA;--soft:#F3F0FF}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:linear-gradient(150deg,#F5F3FF 0%,#EFEAFE 45%,#F7F5FF 100%);background-attachment:fixed;color:var(--ink);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;padding:36px 16px 60px}
+.wrap{max-width:480px;margin:0 auto}
+h1{text-align:center;font-size:24px;margin:0 0 6px;font-weight:800;letter-spacing:-.3px}
+.sub{text-align:center;color:var(--sub);font-size:13.5px;margin-bottom:26px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px 24px;box-shadow:0 10px 30px rgba(68,25,181,.16)}
+label{display:flex;align-items:center;gap:5px;font-weight:700;font-size:13.5px;margin:16px 0 7px;color:var(--ink)}
+input,textarea{width:100%;box-sizing:border-box;padding:13px 14px;border:1.5px solid var(--line);border-radius:14px;font-size:15px;background:var(--soft);color:var(--ink);font-family:inherit;transition:.15s}
+input:focus,textarea:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 4px rgba(68,25,181,.15)}
+textarea{min-height:96px;resize:vertical}
+.timerow{display:flex;gap:8px}
+.timerow select{width:auto;flex:1;padding:13px 8px;border:1.5px solid var(--line);border-radius:14px;font-size:14.5px;background:var(--soft);color:var(--ink);font-family:inherit}
+.timerow select:focus{outline:none;border-color:var(--pink)}
+button{width:100%;margin-top:16px;padding:15px;border:0;border-radius:16px;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;font-weight:800;font-size:15.5px;font-family:inherit;letter-spacing:.2px;cursor:pointer;box-shadow:0 8px 18px rgba(91,38,217,.35);transition:transform .12s,box-shadow .12s}
+button:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(91,38,217,.45)}
+button:active{transform:translateY(0)}
+button:disabled{opacity:.55;cursor:default;transform:none;box-shadow:none}
+.manager{display:none;background:linear-gradient(135deg,#F3F0FF,#EFE9FE);border:1px solid var(--line);padding:14px 16px;border-radius:16px;margin-bottom:16px;font-size:14px}
+.manager b{color:var(--pink);font-size:16px}
+.status{text-align:center;color:#5B4E99;min-height:20px;margin-top:14px;white-space:pre-line;font-size:13.5px;font-weight:600}
+.back{display:block;width:100%;box-sizing:border-box;margin:0 0 18px;padding:13px;border:1.5px solid var(--line);border-radius:14px;background:#fff;text-align:center;color:var(--ink);text-decoration:none;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer}
+.back:hover{border-color:var(--pink);color:var(--pink)}
+.deco{text-align:center;font-size:26px;margin-bottom:2px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(42,33,64,.45);z-index:999;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal-box{background:#fff;border-radius:24px;max-width:360px;width:100%;padding:28px 26px;box-shadow:0 20px 50px rgba(68,25,181,.35);text-align:center}
+.modal-check{font-size:42px;margin-bottom:8px}
+.modal-title{font-size:19px;font-weight:800;margin:0 0 4px;color:var(--ink)}
+.modal-sub{font-size:13px;color:var(--sub);margin:0 0 18px}
+.modal-details{text-align:left;background:var(--soft);border-radius:14px;padding:16px 18px;font-size:14px;line-height:1.9;margin-bottom:20px}
+.modal-details .row{display:flex;gap:8px}
+.modal-details .row .k{flex:0 0 92px;color:var(--sub);font-weight:700;white-space:nowrap}
+.modal-details .row .v{flex:1;word-break:break-all;font-weight:600}
+.modal-close-btn{width:100%;padding:14px;border:0;border-radius:14px;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;font-weight:800;font-size:15px;font-family:inherit;cursor:pointer}
+
+@media (min-width:820px){
+  body{padding:64px 24px}
+  .wrap{max-width:640px}
+  h1{font-size:30px}
+  .sub{font-size:15px;margin-bottom:34px}
+  .panel{padding:40px 44px;border-radius:28px}
+  label{font-size:14.5px}
+  input,textarea{font-size:16px;padding:15px 16px}
+  .timerow select{font-size:15.5px;padding:15px 10px}
+  button{font-size:17px;padding:17px}
+  .manager{font-size:15px;padding:18px 20px}
+  .manager b{font-size:18px}
+}
+</style></head><body>
+<div class="wrap">
+<a class="back" href="index.html">🏠 매니저 업무 시스템으로 돌아가기</a>
+<div class="deco">🕐</div>
+<h1>사무실 복귀시간 입력</h1>
+<p class="sub">전화번호로 본인을 확인한 후 입력할 수 있어요</p>
+<div class="panel">
+  <div id="login">
+    <label>📱 본인 전화번호</label>
+    <input id="phone" type="tel" inputmode="numeric" placeholder="010-1234-5678">
+    <button id="loginBtn" onclick="login()">✔️ 본인 확인</button>
+  </div>
+  <div id="manager" class="manager"></div>
+  <div id="form" style="display:none">
+    <label>📅 복귀 예정일</label>
+    <input id="returnDate" type="date">
+    <label>⏰ 복귀 예정시간</label>
+    <div class="timerow">
+      <select id="returnAmPm"><option value="AM">오전</option><option value="PM">오후</option></select>
+      <select id="returnHour"></select>
+      <select id="returnMinute"></select>
+    </div>
+    <label>📝 메모</label>
+    <textarea id="memo" placeholder="예: 예정시간 변경될 수 있음"></textarea>
+    <button id="saveBtn" onclick="saveReturn()">💾 저장하기</button>
+  </div>
+  <div id="status" class="status"></div>
+</div>
+</div>
+<div class="modal-overlay" id="successModal">
+  <div class="modal-box">
+    <div class="modal-check">✅</div>
+    <p class="modal-title">전달 완료!</p>
+    <p class="modal-sub">아래 내용으로 정상 전송되었습니다</p>
+    <div class="modal-details" id="successDetails"></div>
+    <button type="button" class="modal-close-btn" onclick="closeSuccessModal()">확인</button>
+  </div>
+</div>
+<script>
+var SHEET_ID='1X3LpMT3fl7AoIPPPNwces5UK4-uWxEkuDBkRX6BWvAE';
+var GID_INFO='578655642';
+// 2026-09-21: 사원정보 시트 J열에 "재직상태"가 새로 삽입되면서 뒤 열들이 한 칸씩 밀려 재조정함
+var COL={name:15,branch:1,resignDate:8,employmentStatus:9,phone:10,phone2:13}; // phone2(N열): 건수제/프리랜서 연락처
+
+// 저장(제출)은 구글폼이 아닌 Apps Script 웹앱으로 전송합니다.
+// 배포 후 발급받은 웹 앱 URL을 아래에 붙여넣으세요. (Code.gs 안내 참고)
+var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbyMmyKw8w1KtDDLOf5XAx8P2CVdgq_QI-rRTL1JZ1lhr880PF946gV0gg45PuiKQjcZSA/exec';
+
+function norm(s){return String(s||'').replace(/[^0-9]/g,'');}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function status(s){document.getElementById('status').textContent=s||'';}
+function formatDateDisplay(iso){var p=String(iso||'').split('-');if(p.length!==3)return iso;return p[0]+'. '+parseInt(p[1],10)+'. '+parseInt(p[2],10);}
+function showSuccessModal(rows){
+  var html=rows.map(function(r){return '<div class="row"><span class="k">'+esc(r[0])+'</span><span class="v">'+esc(r[1])+'</span></div>';}).join('');
+  document.getElementById('successDetails').innerHTML=html;
+  document.getElementById('successModal').classList.add('show');
+}
+function closeSuccessModal(){document.getElementById('successModal').classList.remove('show');}
+
+// 참고: 구글이 gviz 응답의 커스텀 responseHandler를 더 이상 반영하지 않고 항상
+// google.visualization.Query.setResponse(...)만 호출하는 것으로 확인되어, 그 기본
+// 콜백을 직접 오버라이드하는 방식으로 변경했습니다. (이전 방식은 10초 타임아웃 오류의 원인이었습니다.)
+function fetchInfo(done,fail){
+  window.google=window.google||{};
+  window.google.visualization=window.google.visualization||{};
+  window.google.visualization.Query=window.google.visualization.Query||{};
+
+  var script=document.createElement('script'),finished=false;
+  var timeoutId=setTimeout(function(){
+    if(finished)return; finished=true;
+    script.remove();
+    fail(new Error('응답이 없습니다. (10초 초과) 네트워크를 확인해주세요.'));
+  },10000);
+  window.google.visualization.Query.setResponse=function(r){
+    if(finished)return; finished=true;
+    clearTimeout(timeoutId);
+    try{
+      if(!r.table)throw new Error('Google Sheets 응답 오류');
+      var rows=[];
+      r.table.rows.forEach(function(x){
+        rows.push((x.c||[]).map(function(c){return c?(c.f!=null?c.f:(c.v!=null?c.v:'')):'';}));
+      });
+      done(rows);
+    }catch(e){fail(e);}
+    script.remove();
+  };
+  script.onerror=function(){if(finished)return;finished=true;clearTimeout(timeoutId);script.remove();fail(new Error('Google Sheets를 불러오지 못했습니다. (스크립트 로드 실패)'))};
+  script.src='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?gid='+GID_INFO+'&headers=0&tqx=out:json';
+  document.body.appendChild(script);
+}
+
+var manager=null;
+function login(){
+  var d=norm(document.getElementById('phone').value);
+  if(d.length<4){status('전화번호를 입력해주세요.');return;}
+  var b=document.getElementById('loginBtn');b.disabled=true;status('본인 정보를 확인하는 중입니다...');
+  fetchInfo(function(rows){
+    var found=null,foundResigned=false;
+    for(var i=1;i<rows.length;i++){
+      var r=rows[i];
+      var p1=norm(r[COL.phone]);
+      var p2=norm(r[COL.phone2]);
+      var matched=(p1 && (p1===d || p1.indexOf(d)!==-1)) || (p2 && (p2===d || p2.indexOf(d)!==-1));
+      if(!matched)continue;
+      // J열(재직상태)이 "퇴사"면 K/N열에 전화번호가 남아있어도 사용할 수 없습니다.
+      if(String(r[COL.employmentStatus]||'').trim()==='퇴사'){foundResigned=true;continue;}
+      found=r;break;
+    }
+    b.disabled=false;
+    if(!found){
+      if(foundResigned){status('퇴사 처리된 번호입니다. 재직 중이 아니어서 사용할 수 없습니다.\n담당자에게 문의해주세요.');}
+      else{status('해당 전화번호의 재직 중인 매니저를 찾을 수 없습니다.\n전화번호를 확인해주세요.');}
+      return;
+    }
+    manager=found;
+    document.getElementById('login').style.display='none';
+    document.getElementById('manager').style.display='block';
+    document.getElementById('manager').innerHTML='<b>💗 '+esc(manager[COL.name])+'님</b><br>'+esc(manager[COL.branch]||'')+' · 입력 내용을 확인해주세요.';
+    document.getElementById('form').style.display='block';status('');
+  },function(e){b.disabled=false;status('오류: '+e.message);});
+}
+document.getElementById('returnDate').value=new Date().toISOString().slice(0,10);
+
+// 시간 입력: 오전/오후 + 시(1~12) + 분(00~59) 드롭다운 구성
+(function(){
+  var hourSel=document.getElementById('returnHour');
+  for(var h=1;h<=12;h++){var o=document.createElement('option');o.value=String(h);o.textContent=h+'시';hourSel.appendChild(o);}
+  var minSel=document.getElementById('returnMinute');
+  for(var m=0;m<60;m++){var mm=(m<10?'0':'')+m;var o2=document.createElement('option');o2.value=mm;o2.textContent=mm+'분';minSel.appendChild(o2);}
+})();
+function setDefaultTime(){
+  var now=new Date();
+  var h=now.getHours();
+  var ampm=h<12?'AM':'PM';
+  var h12=h%12; if(h12===0)h12=12;
+  var mi=now.getMinutes();
+  document.getElementById('returnAmPm').value=ampm;
+  document.getElementById('returnHour').value=String(h12);
+  document.getElementById('returnMinute').value=(mi<10?'0':'')+mi;
+}
+setDefaultTime();
+
+// 오전/오후 + 시 + 분 → 서버로 보낼 24시간제 "HH:MM" 문자열로 변환
+function to24Hour(ampm,hour,minute){
+  var h=parseInt(hour,10);
+  if(ampm==='PM' && h!==12)h+=12;
+  if(ampm==='AM' && h===12)h=0;
+  return (h<10?'0':'')+h+':'+minute;
+}
+
+function saveReturn(){
+ var date=document.getElementById('returnDate').value;
+ var ampm=document.getElementById('returnAmPm').value;
+ var hour=document.getElementById('returnHour').value;
+ var minute=document.getElementById('returnMinute').value;
+ var memo=document.getElementById('memo').value.trim();
+ if(!date||!hour||!minute){status('복귀 예정일과 복귀 예정시간을 입력해주세요.');return;}
+ if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('script.google.com')===-1){status('아직 저장소(Apps Script) 연결이 설정되지 않았습니다.\n관리자에게 문의해주세요.');return;}
+ var time=to24Hour(ampm,hour,minute);
+ var b=document.getElementById('saveBtn');b.disabled=true;status('저장 중입니다...');
+ var payload={type:'office_return',name:manager[COL.name],branch:manager[COL.branch]||'',date:date,time:time,memo:memo};
+ fetch(APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+ .then(function(r){return r.json();})
+ .then(function(res){
+   b.disabled=false;
+   if(res && res.result==='success'){
+     status('');
+     showSuccessModal([
+       ['이름', manager[COL.name]],
+       ['지점', manager[COL.branch]||'-'],
+       ['복귀 예정일', formatDateDisplay(date)],
+       ['복귀 예정시간', (ampm==='AM'?'오전':'오후')+' '+hour+':'+minute],
+       ['메모', memo||'-']
+     ]);
+     document.getElementById('memo').value='';
+     setDefaultTime();
+   }else{
+     status('저장하지 못했습니다. '+(res && res.message ? res.message : '알 수 없는 오류가 발생했습니다.'));
+   }
+ })
+ .catch(function(e){b.disabled=false;status('저장하지 못했습니다. '+e.message);});
+}
+document.getElementById('phone').addEventListener('keydown',function(e){if(e.key==='Enter')login();});
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
+</script></body></html>

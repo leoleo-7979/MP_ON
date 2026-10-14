@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#4419B5">
+<title>매니저 업무 시스템</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="매니저업무">
+<style>
+:root{--pink:#4419B5;--purple:#7B57E8;--lav:#9B86F2;--peach:#C9BFFF;--ink:#2A2140;--sub:#7A72A0;--line:#E4DBFA;--soft:#F3F0FF;--warn:#EDE4FE}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:linear-gradient(150deg,#F5F3FF 0%,#EFEAFE 45%,#F7F5FF 100%);background-attachment:fixed;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--ink);padding:30px 14px 44px}
+.wrap{width:100%;max-width:560px;margin:0 auto}
+.header{text-align:center;padding:6px 0 24px}
+.deco{font-size:28px;margin-bottom:4px}
+.brandmark{width:52px;height:52px;border-radius:15px;margin:0 auto 10px;background:linear-gradient(150deg,#5A26D9,#3712A0);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 18px rgba(68,25,181,.35)}
+.brandmark span{color:#fff;font-weight:800;font-size:18px;letter-spacing:.5px;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+h1{font-size:24px;margin:0 0 7px;font-weight:800;letter-spacing:-.3px}
+.sub{font-size:13.5px;color:var(--sub);margin:0}
+.menu{display:flex;flex-direction:column;gap:14px}
+.card{display:flex;align-items:center;min-height:80px;width:100%;padding:16px 17px;border:1px solid var(--line);border-radius:18px;background:#fff;text-decoration:none;color:var(--ink);box-shadow:0 8px 22px rgba(68,25,181,.14);cursor:pointer;transition:transform .12s,box-shadow .12s}
+.card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(91,38,217,.22)}
+.icon{width:50px;height:50px;flex:0 0 50px;border-radius:15px;background:linear-gradient(135deg,var(--soft),#EFE9FE);display:flex;align-items:center;justify-content:center;font-size:23px;margin-right:14px}
+.icon.warn{background:linear-gradient(135deg,var(--warn),#F3F0FF)}
+.body{flex:1;min-width:0}
+.title{font-size:16.5px;font-weight:800}
+.desc{font-size:12.5px;color:var(--sub);margin-top:4px}
+.arrow{font-size:25px;color:var(--lav)}
+#vacationView{display:none}
+#vacationFrame{width:100%;height:900px;border:0;border-radius:18px;background:#fff;box-shadow:0 8px 22px rgba(68,25,181,.14)}
+#cardView{display:none}
+#cardFrame{width:100%;height:820px;border:0;border-radius:18px;background:#fff;box-shadow:0 8px 22px rgba(68,25,181,.14)}
+#issuanceView{display:none}
+#issuanceFrame{width:100%;height:1400px;border:0;border-radius:18px;background:#fff;box-shadow:0 8px 22px rgba(68,25,181,.14)}
+.back{display:block;width:100%;margin:10px 0 14px;padding:13px;border:1.5px solid var(--line);border-radius:14px;background:#fff;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit;font-size:14px}
+.back:hover{border-color:var(--pink);color:var(--pink)}
+.footer{text-align:center;font-size:11.5px;color:var(--sub);margin-top:24px}
+.installBtn{display:none;width:100%;margin-top:16px;padding:14px;border:0;border-radius:16px;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;font-weight:800;font-size:14.5px;font-family:inherit;letter-spacing:.2px;cursor:pointer;box-shadow:0 8px 18px rgba(91,38,217,.35)}
+.installBtn:hover{transform:translateY(-1px)}
+.installTip{display:none;margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;font-size:12.5px;color:var(--ink);line-height:1.5;text-align:center}
+
+@media (min-width:820px){
+  body{padding:56px 24px}
+  .wrap{max-width:680px}
+  .deco{font-size:34px}
+  h1{font-size:30px}
+  .sub{font-size:15px}
+  .header{padding-bottom:34px}
+  .menu{gap:16px}
+  .card{min-height:92px;padding:20px 22px;border-radius:22px}
+  .icon{width:58px;height:58px;flex:0 0 58px;border-radius:17px;font-size:27px;margin-right:18px}
+  .title{font-size:18.5px}
+  .desc{font-size:13.5px}
+  #vacationFrame{height:960px}
+  #cardFrame{height:880px}
+  #issuanceFrame{height:1500px}
+}
+</style>
+</head>
+<body>
+<main class="wrap" id="home">
+<header class="header">
+<div class="brandmark"><span>MP</span></div>
+<h1>매니저 업무 시스템</h1>
+<p class="sub">필요한 업무를 선택해주세요</p>
+</header>
+<nav class="menu">
+<div class="card" onclick="openCard()">
+<div class="icon">🪪</div>
+<div class="body"><div class="title">나의 전자명함</div><div class="desc">전화번호로 내 명함 자동 생성 · 이미지 저장</div></div>
+<div class="arrow">›</div>
+</div>
+
+<div class="card" onclick="openVacation()">
+<div class="icon">🔍</div>
+<div class="body"><div class="title">휴가 통합조회</div><div class="desc">잔여 휴가와 사용 내역 확인 · 휴가 신청</div></div>
+<div class="arrow">›</div>
+</div>
+
+<a class="card" href="사무실_복귀시간_입력.html">
+<div class="icon">🕐</div>
+<div class="body"><div class="title">사무실 복귀시간 입력</div><div class="desc">복귀 예정일 · 시간 · 메모 입력</div></div>
+<div class="arrow">›</div>
+</a>
+
+<a class="card" href="택배_발송_입력.html">
+<div class="icon warn">📦</div>
+<div class="body"><div class="title">택배 발송 입력</div><div class="desc">발송일 · 메모 입력</div></div>
+<div class="arrow">›</div>
+</a>
+
+<div class="card" onclick="openIssuanceManual()">
+<div class="icon">📋</div>
+<div class="body"><div class="title">발급매니저 업무매뉴얼</div><div class="desc">코나카드 등록방법 · 고객문의 · 업무매뉴얼</div></div>
+<div class="arrow">›</div>
+</div>
+</nav>
+<div class="footer">휴대폰과 PC에서 모두 사용할 수 있어요</div>
+<button id="installBtn" class="installBtn" onclick="installApp()">📲 홈 화면에 앱으로 추가하기</button>
+<div id="iosTip" class="installTip">📱 Safari 하단의 <b>공유</b> 버튼을 누른 뒤 <b>홈 화면에 추가</b>를 선택하면 앱처럼 사용할 수 있어요!</div>
+</main>
+
+<section class="wrap" id="cardView">
+<button class="back" onclick="closeCard()">🏠 매니저 업무 시스템으로 돌아가기</button>
+<iframe id="cardFrame" title="나의 전자명함"></iframe>
+</section>
+
+<section class="wrap" id="vacationView">
+<button class="back" onclick="closeVacation()">🏠 매니저 업무 시스템으로 돌아가기</button>
+<iframe id="vacationFrame" title="휴가 통합조회"></iframe>
+</section>
+
+<section class="wrap" id="issuanceView">
+<button class="back" onclick="closeIssuanceManual()">🏠 매니저 업무 시스템으로 돌아가기</button>
+<iframe id="issuanceFrame" title="발급매니저 업무매뉴얼"></iframe>
+</section>
+
+<script>
+
+function openVacation() {
+  document.getElementById("home").style.display = "none";
+  document.getElementById("vacationView").style.display = "block";
+  const frame = document.getElementById("vacationFrame");
+  if (!frame.getAttribute("src")) frame.setAttribute("src", "휴가_통합조회.html");
+  window.scrollTo(0, 0);
+}
+
+function closeVacation() {
+  clearDeepLink();
+  document.getElementById("vacationView").style.display = "none";
+  document.getElementById("home").style.display = "block";
+  window.scrollTo(0, 0);
+}
+
+function openCard() {
+  document.getElementById("home").style.display = "none";
+  document.getElementById("cardView").style.display = "block";
+  const frame = document.getElementById("cardFrame");
+  if (!frame.getAttribute("src")) frame.setAttribute("src", "전자명함.html");
+  window.scrollTo(0, 0);
+}
+
+function closeCard() {
+  clearDeepLink();
+  document.getElementById("cardView").style.display = "none";
+  document.getElementById("home").style.display = "block";
+  window.scrollTo(0, 0);
+}
+
+function openIssuanceManual() {
+  document.getElementById("home").style.display = "none";
+  document.getElementById("issuanceView").style.display = "block";
+  const frame = document.getElementById("issuanceFrame");
+  if (!frame.getAttribute("src")) frame.setAttribute("src", "발급매니저_업무매뉴얼.html");
+  window.scrollTo(0, 0);
+}
+
+function closeIssuanceManual() {
+  clearDeepLink();
+  document.getElementById("issuanceView").style.display = "none";
+  document.getElementById("home").style.display = "block";
+  window.scrollTo(0, 0);
+}
+
+// ---- 바로가기 링크: index.html?page=leave 처럼 주소로 원하는 화면을 바로 열기 ----
+// card(전자명함) · leave(휴가 통합조회) · return(복귀시간 입력) · parcel(택배 발송 입력) · manual(발급매니저 업무매뉴얼)
+// (?page=leave 와 #leave 둘 다 동작)
+function clearDeepLink() {
+  try { history.replaceState(null, "", location.pathname); } catch (e) {}
+}
+(function routeDeepLink() {
+  var q = "";
+  try { q = new URLSearchParams(location.search).get("page") || ""; } catch (e) {}
+  var key = (q || location.hash.replace("#", "")).toLowerCase();
+  var routes = {
+    card: openCard,
+    leave: openVacation,
+    "return": function () { location.replace("사무실_복귀시간_입력.html"); },
+    parcel: function () { location.replace("택배_발송_입력.html"); },
+    manual: openIssuanceManual
+  };
+  if (routes[key]) routes[key]();
+})();
+
+// ---- 홈 화면이 뜬 뒤, 한가할 때 하위 화면들을 미리 받아두기 (클릭 시 즉시 열리도록) ----
+function prefetchScreens() {
+  ["휴가_통합조회.html", "전자명함.html", "발급매니저_업무매뉴얼.html"].forEach(function (url) {
+    fetch(url).catch(function () {});
+  });
+}
+window.addEventListener('load', function () {
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(prefetchScreens, { timeout: 3000 });
+  } else {
+    setTimeout(prefetchScreens, 1000);
+  }
+});
+
+// ---- 홈 화면에 앱으로 추가하기 (PWA 설치) ----
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+
+function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+var deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', function (e) {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  if (!isStandalone()) document.getElementById('installBtn').style.display = 'block';
+});
+
+function installApp() {
+  if (!deferredInstallPrompt) return;
+  var btn = document.getElementById('installBtn');
+  btn.style.display = 'none';
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.finally(function () { deferredInstallPrompt = null; });
+}
+
+window.addEventListener('appinstalled', function () {
+  document.getElementById('installBtn').style.display = 'none';
+});
+
+(function () {
+  if (isStandalone()) return; // 이미 앱으로 설치되어 실행 중이면 안내 숨김
+  var ua = window.navigator.userAgent || '';
+  var isIOS = /iphone|ipad|ipod/i.test(ua);
+  if (isIOS) document.getElementById('iosTip').style.display = 'block';
+})();
+</script>
+</body>
+</html>

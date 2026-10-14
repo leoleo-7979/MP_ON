@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>휴가 통합 조회</title>
+<style>
+  :root {
+    --pink: #4419B5;
+    --purple: #7B57E8;
+    --lav: #9B86F2;
+    --peach: #C9BFFF;
+    --ink: #2A2140;
+    --sub: #7A72A0;
+    --paper: #F3F0FF;
+    --line: #E4DBFA;
+    --accent: #7B57E8;
+    --accent-soft: #EFE9FE;
+    --warn: #4419B5;
+    --sans: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    background: linear-gradient(150deg,#F5F3FF 0%,#EFEAFE 45%,#F7F5FF 100%);
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: var(--sans); padding: 40px 20px 80px;
+  }
+  @media (max-width: 480px) {
+    body { padding: 26px 14px 60px; }
+    .wrap { max-width: 100%; }
+    .panel { padding: 18px; }
+    .stat .value { font-size: 19px; }
+    table { font-size: 12px; }
+    thead th, tbody td { padding: 6px 8px; }
+  }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  .deco { text-align: center; font-size: 26px; margin-bottom: 2px; }
+  h1 { font-size: 22px; font-weight: 800; margin: 0 0 4px; text-align: center; letter-spacing: -.3px; }
+  .sub { color: var(--sub); font-size: 13px; margin: 0 0 28px; text-align: center; }
+  .panel {
+    background: #fff; border: 1px solid var(--line); border-radius: 22px;
+    padding: 26px 24px; box-shadow: 0 10px 30px rgba(68,25,181,.16);
+  }
+  input[type=text] {
+    width: 100%; font-size: 16px; padding: 13px 14px;
+    border: 1.5px solid var(--line); border-radius: 14px;
+    background: var(--paper); color: var(--ink); font-family: inherit; transition: .15s;
+  }
+  input[type=text]:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 4px rgba(68,25,181,.15); }
+  button {
+    width: 100%; margin-top: 10px; font-family: var(--sans);
+    font-size: 15.5px; font-weight: 800; padding: 14px;
+    border-radius: 16px; border: 0; letter-spacing: .2px;
+    background: linear-gradient(135deg,var(--pink),var(--purple)); color: #fff; cursor: pointer;
+    box-shadow: 0 8px 18px rgba(91,38,217,.35); transition: transform .12s, box-shadow .12s;
+  }
+  button:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(91,38,217,.45); }
+  button:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: none; }
+  .status { font-size: 13px; color: #5B4E99; text-align: center; margin-top: 12px; min-height: 18px; white-space: pre-line; word-break: break-word; font-weight: 600; }
+  .notice { font-size: 12px; color: var(--sub); text-align: center; margin-top: 8px; }
+
+  .name-header { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 0 10px; }
+  .name-header .name { font-size: 18px; font-weight: 800; }
+  .name-header .name::before { content: "💗 "; }
+  .name-header .branch { font-size: 12.5px; color: var(--sub); }
+
+  .section-title { font-size: 13px; font-weight: 800; color: var(--purple); text-transform: uppercase; letter-spacing: 0.04em; margin: 22px 0 10px; }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat {
+    background: linear-gradient(135deg,var(--paper),var(--accent-soft)); border-radius: 14px; padding: 12px; text-align: center;
+  }
+  .stat .label { font-size: 12px; color: var(--purple); font-weight: 700; margin-bottom: 4px; }
+  .stat .value { font-size: 22px; font-weight: 800; color: var(--ink); }
+  .meta { margin-top: 10px; font-size: 12.5px; color: var(--sub); }
+
+  .summary-row { display: flex; gap: 10px; }
+  .summary {
+    flex: 1; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 10px; text-align: center;
+  }
+  .summary .label { font-size: 11.5px; color: var(--purple); font-weight: 700; margin-bottom: 3px; }
+  .summary .value { font-size: 17px; font-weight: 800; color: var(--ink); }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+  thead th {
+    background: var(--accent-soft); color: var(--purple); text-align: left;
+    padding: 8px 10px; border-bottom: 2px solid var(--lav); font-weight: 700; white-space: nowrap;
+  }
+  tbody td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tbody tr:nth-child(even) { background: var(--paper); }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+  .tag-month { background: #EFE9FE; color: var(--purple); }
+  .tag-annual { background: #EDE4FE; color: var(--pink); }
+  .tag-etc { background: #E4DBFA; color: var(--sub); }
+  .note { color: var(--sub); font-size: 12px; }
+  .table-scroll { overflow-x: auto; }
+
+
+  /* ---- 신청 현황 ---- */
+  .badge-new { display:inline-block; margin-left:6px; padding:1px 8px; border-radius:10px; background:var(--pink); color:#fff; font-size:10.5px; font-weight:800; letter-spacing:.04em; vertical-align:middle; }
+  .req-list { display:flex; flex-direction:column; gap:10px; }
+  .req-card { border:1px solid var(--line); border-radius:16px; padding:13px 14px; background:#fff; }
+  .req-top { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .req-date { font-size:14.5px; font-weight:800; color:var(--ink); }
+  .req-sub { margin-top:5px; display:flex; align-items:center; gap:6px; font-size:12px; color:var(--sub); }
+  .req-status { flex:0 0 auto; padding:7px 13px; border-radius:12px; font-size:13px; font-weight:800; white-space:nowrap; }
+  .st-pending { background:#FFF1D6; color:#A5670A; }
+  .st-approved { background:#DDF6E4; color:#1E7A3C; }
+  .st-rejected { background:#FDE1E1; color:#C22B2B; }
+  .req-reason { margin-top:10px; padding-top:9px; border-top:1px dashed var(--line); font-size:12px; color:var(--sub); line-height:1.5; }
+
+  .updated { text-align: center; font-size: 11.5px; color: var(--sub); margin-top: 20px; }
+  .empty { color: var(--sub); font-size: 13.5px; text-align: center; margin-top: 16px; }
+  .divider { border: none; border-top: 1px solid var(--line); margin: 22px 0 0; }
+
+  @media (min-width: 820px) {
+    body { padding: 60px 24px; }
+    .wrap { max-width: 720px; }
+    .deco { font-size: 32px; }
+    h1 { font-size: 27px; }
+    .sub { font-size: 14.5px; margin-bottom: 34px; }
+    .panel { padding: 36px 40px; border-radius: 28px; }
+    input[type=text] { font-size: 16px; padding: 15px 16px; }
+    button { font-size: 16.5px; padding: 16px; }
+    .stat .value { font-size: 25px; }
+    .summary .value { font-size: 19px; }
+    table { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="deco">🔍</div>
+  <h1>휴가 통합 조회</h1>
+  <p class="sub">전화번호를 입력하면 잔여일수와 사용 내역을 함께 보여드려요</p>
+
+  <div class="panel">
+    <input type="text" id="nameInput" placeholder="전화번호 입력 (예: 010-1234-5678)" autocomplete="off" inputmode="numeric">
+    <div class="notice">※ 프리랜서, 건수제 매니저는 월차/연차가 생성되지 않습니다.</div>
+    <button type="button" id="searchBtn" onclick="doSearch()">🔍 조회하기</button>
+    <div class="status" id="status"></div>
+    <div id="results"></div>
+  </div>
+
+  <div class="updated" id="updated"></div>
+</div>
+
+<script>
+  var SHEET_ID = '1X3LpMT3fl7AoIPPPNwces5UK4-uWxEkuDBkRX6BWvAE';
+  var GID_INFO = '578655642';   // 사원정보 탭: 잔여 월차/연차 수
+  var GID_HISTORY = '628017033'; // 휴가사용내역 탭 (전체 이력)
+
+  // Fixed column positions confirmed from screenshots (0-indexed)
+  // 2026-09-21: 사원정보 시트 J열에 "재직상태" 열이 새로 삽입되면서 그 뒤 열들이 한 칸씩
+  // 밀렸습니다. 아래 값은 그 이후 실제 시트 기준으로 다시 맞춘 위치입니다.
+  // 2026-09-23: monthly/annual/warning 열이 한 칸씩 밀린 상태로 남아있던 것을 실제
+  // 시트(양선우, M00081행)와 직접 대조하여 AF/AG/AH로 재수정. (기존 AE/AF/AG는 각각
+  // "연차 갯수"/"잔여 월차 수"/"잔여 연차 수"를 가리키고 있어 한 칸씩 밀려 있었음)
+  var COL_INFO = {
+    memberId: 0,   // A: 회원번호
+    branch: 1,     // B: 지점
+    role: 2,       // C: 업무구분
+    name: 15,      // P: 직원명
+    hireDate: 7,   // H: 입사일
+    resignDate: 8, // I: 퇴사일
+    employmentStatus: 9, // J: 재직상태 (신규 추가된 열)
+    phone: 10,     // K: 연락처
+    phone2: 13,    // N: 건수제/프리랜서 연락처
+    monthly: 31,   // AF: 잔여 월차 수
+    annual: 32,    // AG: 잔여 연차 수
+    warning: 33    // AH: 경고
+  };
+  var INFO_DATA_START_ROW = 1;
+
+  // Google Form prefill config for "휴가 신청하기" — pre-fills 지점/업무구분/성명/회원번호
+  // so the manager never has to type (or guess) the internal employee name.
+  var FORM_BASE_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSelgN-Hr-a0-LPi3PEBwF9SDbO0Nu0OMA6V8a3NswYmmIJ9cw/viewform';
+  var FORM_ENTRY = {
+    branch: 'entry.1230278992',
+    role: 'entry.1061129149',
+    name: 'entry.80286927',
+    memberId: 'entry.1885821175'
+  };
+
+  function buildFormUrl(name, branch, role, memberId) {
+    var params = [];
+    params.push('usp=pp_url');
+    if (branch) params.push(FORM_ENTRY.branch + '=' + encodeURIComponent(branch));
+    if (role) params.push(FORM_ENTRY.role + '=' + encodeURIComponent(role));
+    if (name) params.push(FORM_ENTRY.name + '=' + encodeURIComponent(name));
+    if (memberId) params.push(FORM_ENTRY.memberId + '=' + encodeURIComponent(memberId));
+    return FORM_BASE_URL + '?' + params.join('&');
+  }
+
+  // "휴가 신청하기"는 새 탭에서 구글폼을 엽니다. 폼 제출 자체는 다른 탭에서 일어나서 우리 화면이
+  // 직접 알 수는 없지만, 아래 두 신호 중 하나라도 감지되면 자동으로 매니저 업무 시스템 첫 화면으로
+  // 이동시킵니다: (1) 열었던 구글폼 탭이 닫힘, (2) 탭을 닫지 않고 이 화면으로 다시 돌아옴.
+  // visibilitychange만 쓰면 기기/브라우저에 따라 안정적으로 발생하지 않는 경우가 있어,
+  // 팝업 닫힘 감지(더 안정적)를 기본으로 하고 visibilitychange는 보조 신호로 둡니다.
+  var vacationFormOpened = false;
+  var vacationPopup = null;
+  var vacationPollTimer = null;
+
+  function openVacationRequestForm(btn) {
+    var url = btn.getAttribute('data-vac-url');
+    if (!url) return;
+
+    var popup = null;
+    try { popup = window.open(url, '_blank'); } catch (e) { popup = null; }
+    if (!popup) return; // 팝업이 차단된 경우: 별도 처리 없이 둡니다.
+
+    vacationPopup = popup;
+    vacationFormOpened = true;
+
+    if (vacationPollTimer) clearInterval(vacationPollTimer);
+    vacationPollTimer = setInterval(function () {
+      if (!vacationPopup || vacationPopup.closed) {
+        clearInterval(vacationPollTimer);
+        vacationPollTimer = null;
+        if (vacationFormOpened) {
+          vacationFormOpened = false;
+          goHomeAfterVacationForm();
+        }
+      }
+    }, 700);
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && vacationFormOpened) {
+      vacationFormOpened = false;
+      if (vacationPollTimer) { clearInterval(vacationPollTimer); vacationPollTimer = null; }
+      goHomeAfterVacationForm();
+    }
+  });
+
+  function goHomeAfterVacationForm() {
+    try {
+      if (window.parent && window.parent !== window && typeof window.parent.closeVacation === 'function') {
+        window.parent.closeVacation();
+        return;
+      }
+    } catch (e) { /* 다른 출처(iframe 밖)에서 열린 경우 등은 무시하고 아래 폴백으로 진행 */ }
+    // 매니저 업무 시스템 iframe 밖에서 이 화면이 단독으로 열린 경우를 위한 폴백입니다.
+    window.location.href = 'index.html';
+  }
+
+  var COL_HIST = {
+    branch: 1, role: 2, name: 3, memberId: 4,
+    startDate: 5, endDate: 6, days: 7, type: 8, note: 9
+  };
+  var HIST_DATA_START_ROW = 1;
+
+  // ---- 휴가 신청 현황 (대기중/승인/반려) ----
+  // 콕콕이 웹앱(Apps Script)의 action=myRequests 를 호출해 "본인 신청 건만" 받아옵니다.
+  // (신청 시트를 공개로 열 필요가 없습니다.) 이 주소는 콕콕이 스크립트를 배포한 웹앱 URL이어야 합니다.
+  var REQUEST_API_URL = 'https://script.google.com/macros/s/AKfycbxUBGesJFSJo_Eatdwao6riV2Vl12q8JbwFaCUtUYjKD-fYnkXhZpTn4SJtfTEt7cLxqA/exec';
+  var REQ_MAX_SHOW = 5;
+  var reqSeq = 0;
+  // 화면 미리보기용: 주소 뒤에 ?demo=1 을 붙이면 샘플 데이터로 표시됩니다.
+  var DEMO = /[?&]demo=1/.test(location.search);
+
+  var infoRows = null;
+  var histRows = null;
+
+  document.getElementById('nameInput').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') doSearch();
+  });
+
+  function setStatus(msg) {
+    document.getElementById('status').textContent = msg || '';
+  }
+
+  // 참고: 구글이 gviz 응답의 커스텀 responseHandler 파라미터를 더 이상 반영하지 않고
+  // 항상 기본 콜백인 google.visualization.Query.setResponse(...)만 호출하는 것으로 확인되어,
+  // 커스텀 핸들러 이름 대신 이 기본 콜백을 직접 오버라이드하는 방식으로 변경했습니다.
+  // (동시에 두 시트를 조회하면 콜백이 서로 덮어써지므로, loadAll에서 순차 조회로 변경했습니다.)
+  function fetchSheet(gid, onDone, onError) {
+    window.google = window.google || {};
+    window.google.visualization = window.google.visualization || {};
+    window.google.visualization.Query = window.google.visualization.Query || {};
+
+    var finished = false;
+    var scriptEl;
+
+    var timeoutId = setTimeout(function() {
+      if (!finished) {
+        finished = true;
+        cleanup();
+        onError(new Error('응답 시간이 초과되었습니다. (gid: ' + gid + ')'));
+      }
+    }, 12000);
+
+    function cleanup() {
+      clearTimeout(timeoutId);
+      if (scriptEl && scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
+    }
+
+    window.google.visualization.Query.setResponse = function(resp) {
+      if (finished) return;
+      finished = true;
+      cleanup();
+      try {
+        if (!resp || resp.status === 'error') {
+          var msg = (resp && resp.errors && resp.errors[0] && resp.errors[0].detailed_message) || '시트 응답 오류';
+          throw new Error(msg);
+        }
+        var table = resp.table;
+        var rows = [];
+        for (var r = 0; r < table.rows.length; r++) {
+          var cells = table.rows[r].c;
+          var rowArr = [];
+          for (var c = 0; c < cells.length; c++) {
+            var cell = cells[c];
+            if (!cell) { rowArr.push(''); continue; }
+            var val = (cell.f !== undefined && cell.f !== null) ? cell.f : cell.v;
+            rowArr.push(val === null || val === undefined ? '' : String(val));
+          }
+          rows.push(rowArr);
+        }
+        onDone(rows);
+      } catch (e) {
+        onError(e);
+      }
+    };
+
+    var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID +
+      '/gviz/tq?gid=' + gid + '&headers=0&tqx=out:json';
+
+    scriptEl = document.createElement('script');
+    scriptEl.src = url;
+    scriptEl.onerror = function() {
+      if (finished) return;
+      finished = true;
+      cleanup();
+      onError(new Error('시트를 불러오지 못했습니다. (gid: ' + gid + ') 공유 설정을 확인해주세요.'));
+    };
+    document.body.appendChild(scriptEl);
+  }
+
+  function loadAll(callback, onError) {
+    setStatus('시트에서 데이터를 불러오는 중입니다...');
+    document.getElementById('searchBtn').disabled = true;
+
+    var failed = false;
+    function fail(err) {
+      if (failed) return;
+      failed = true;
+      document.getElementById('searchBtn').disabled = false;
+      onError(err);
+    }
+
+    // 한 번에 하나씩 순차적으로 조회합니다 (동시 조회 시 콜백 충돌 방지).
+    fetchSheet(GID_INFO, function(rows) {
+      if (failed) return;
+      infoRows = rows.slice(INFO_DATA_START_ROW).filter(function(row) {
+        return row[COL_INFO.name] && row[COL_INFO.name].trim().length > 0;
+      });
+
+      fetchSheet(GID_HISTORY, function(rows2) {
+        if (failed) return;
+        histRows = rows2.slice(HIST_DATA_START_ROW).filter(function(row) {
+          return row[COL_HIST.name] && row[COL_HIST.name].trim().length > 0 && row[COL_HIST.startDate] && row[COL_HIST.startDate].trim().length > 0;
+        });
+        document.getElementById('searchBtn').disabled = false;
+        document.getElementById('updated').textContent = '마지막 조회: ' + new Date().toLocaleString('ko-KR');
+        callback();
+      }, fail);
+    }, fail);
+  }
+
+  function doSearch() {
+    var query = document.getElementById('nameInput').value.trim();
+    document.getElementById('results').innerHTML = '';
+    if (!query) { setStatus('전화번호를 입력해주세요.'); return; }
+
+    if (infoRows && histRows) {
+      setStatus('');
+      renderResults(query);
+    } else {
+      loadAll(
+        function(){ setStatus(''); renderResults(query); },
+        function(err){ setStatus('오류: ' + err.message); }
+      );
+    }
+  }
+
+  function findMatches(rows, nameIdx, query) {
+    var exact = [];
+    for (var i = 0; i < rows.length; i++) {
+      var name = (rows[i][nameIdx] || '').trim();
+      if (name === query) exact.push(rows[i]);
+    }
+    if (exact.length > 0) return exact;
+    var partial = [];
+    for (var j = 0; j < rows.length; j++) {
+      var name2 = (rows[j][nameIdx] || '').trim();
+      if (name2.indexOf(query) !== -1) partial.push(rows[j]);
+    }
+    return partial;
+  }
+
+  function normalizeDigits(s) {
+    return String(s || '').replace(/[^0-9]/g, '');
+  }
+
+  function isPhoneLikeQuery(q) {
+    var digits = normalizeDigits(q);
+    return digits.length >= 4 && digits.length === q.replace(/[\s\-]/g, '').length;
+  }
+
+  function findByPhone(rows, query) {
+    var digits = normalizeDigits(query);
+    var matches = [];
+    for (var i = 0; i < rows.length; i++) {
+      var phone = normalizeDigits(rows[i][COL_INFO.phone]);
+      var phone2 = normalizeDigits(rows[i][COL_INFO.phone2]); // M열: 건수제/프리랜서 연락처
+      var matched = (phone && (phone === digits || phone.indexOf(digits) !== -1)) ||
+                    (phone2 && (phone2 === digits || phone2.indexOf(digits) !== -1));
+      if (matched) matches.push(rows[i]);
+    }
+    return matches;
+  }
+
+  function parseDateForSort(s) {
+    var t = Date.parse(s);
+    return isNaN(t) ? 0 : t;
+  }
+
+  function tagClass(type) {
+    var t = (type || '').trim();
+    if (t.indexOf('월차') !== -1) return 'tag-month';
+    if (t.indexOf('연차') !== -1) return 'tag-annual';
+    return 'tag-etc';
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function renderResults(query) {
+    var container = document.getElementById('results');
+
+    if (!isPhoneLikeQuery(query)) {
+      container.innerHTML = '<div class="empty">전화번호로 입력해주세요. (예: 010-1234-5678)</div>';
+      return;
+    }
+
+    var phoneMatches = findByPhone(infoRows, query);
+
+    // Only keep currently-active employment records (재직상태 !== 퇴사) — this is what
+    // correctly resolves re-hired employees, since their old row is marked 퇴사.
+    // (퇴사일 alone isn't reliable: 퇴사예정 rows already have a future 퇴사일 filled in
+    // while still being active, so filtering on 퇴사일 blank wrongly excludes them.)
+    var activeMatches = phoneMatches.filter(function(r) {
+      return (r[COL_INFO.employmentStatus] || '').trim() !== '퇴사';
+    });
+
+    if (activeMatches.length === 0) {
+      if (phoneMatches.length > 0) {
+        container.innerHTML = '<div class="empty">해당 전화번호로 재직 중인 기록을 찾을 수 없습니다. (퇴사 처리된 기록만 있습니다)</div>';
+      } else {
+        container.innerHTML = '<div class="empty">해당 전화번호를 찾을 수 없습니다. 번호를 다시 확인해주세요.</div>';
+      }
+      return;
+    }
+
+    var html = '';
+    activeMatches.forEach(function(info) {
+      var memberId = (info[COL_INFO.memberId] || '').trim();
+      var name = info[COL_INFO.name].trim();
+      var branch = info[COL_INFO.branch];
+
+      // Bridge to history via 회원번호 (member ID) when available.
+      var hist;
+      if (memberId) {
+        hist = histRows.filter(function(r){ return (r[COL_HIST.memberId] || '').trim() === memberId; });
+      } else {
+        hist = histRows.filter(function(r){ return r[COL_HIST.name].trim() === name; });
+      }
+
+      // Only show usage on/after the (latest) hire date on file — keeps pre-rehire
+      // history out of view for employees whose 입사일 was updated on re-hire.
+      var hireDateStr = info[COL_INFO.hireDate];
+      var hireDateMs = hireDateStr ? Date.parse(hireDateStr) : NaN;
+      if (!isNaN(hireDateMs)) {
+        hist = hist.filter(function(r) {
+          var d = Date.parse(r[COL_HIST.startDate]);
+          return isNaN(d) ? true : d >= hireDateMs;
+        });
+      }
+
+      html += renderEmployeeBlock(name, branch, memberId, info, hist);
+    });
+
+    container.innerHTML = html;
+  }
+
+  function renderEmployeeList(infoMatches, container, showAsButtons) {
+    var html = '<div style="margin-top:10px;">';
+    infoMatches.forEach(function(info) {
+      var name = info[COL_INFO.name];
+      var branch = info[COL_INFO.branch];
+      var phone = info[COL_INFO.phone];
+      html += '<div style="padding:10px; border:1px solid var(--line); border-radius:8px; margin-top:8px; font-size:13px;">';
+      html += '<b>' + escapeHtml(name) + '</b> (' + escapeHtml(branch || '') + ') — ' + escapeHtml(phone || '전화번호 없음');
+      html += '</div>';
+    });
+    html += '</div>';
+    container.innerHTML += html;
+  }
+
+  // ---- 신청 현황 렌더링 ----
+  function parseYMD(str) {
+    var m = /(\d{4})\D+(\d{1,2})\D+(\d{1,2})/.exec(String(str || ''));
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+  }
+  function fmtMD(d) {
+    var w = ['일','월','화','수','목','금','토'][d.getDay()];
+    return (d.getMonth() + 1) + '. ' + d.getDate() + ' (' + w + ')';
+  }
+  function fmtRange(a, b) {
+    var d1 = parseYMD(a), d2 = parseYMD(b);
+    if (!d1) return escapeHtml(String(a || '-'));
+    if (!d2 || d1.getTime() === d2.getTime()) return fmtMD(d1);
+    return fmtMD(d1) + ' ~ ' + fmtMD(d2);
+  }
+  function fmtRequested(str) {
+    var d = parseYMD(str);
+    return d ? d.getFullYear() + '. ' + (d.getMonth() + 1) + '. ' + d.getDate() + ' 신청' : '';
+  }
+  // 승인상태(K열): '승인' → 승인, '반려' → 반려, 그 외(빈 값 포함) → 대기중
+  function statusInfo(raw) {
+    var t = String(raw || '').trim();
+    if (t.indexOf('승인') !== -1) return { cls: 'st-approved', label: '✅ 승인' };
+    if (t.indexOf('반려') !== -1) return { cls: 'st-rejected', label: '❌ 반려' };
+    return { cls: 'st-pending', label: '⏳ 대기중' };
+  }
+  function demoRequests() {
+    var y = new Date().getFullYear();
+    return [
+      { requestedAt: y+'-09-29', startDate: y+'-10-05', endDate: y+'-10-05', type: '연차', status: '', reason: '' },
+      { requestedAt: y+'-09-15', startDate: y+'-09-18', endDate: y+'-09-18', type: '월차', status: '승인', reason: '' },
+      { requestedAt: y+'-08-30', startDate: y+'-09-03', endDate: y+'-09-03', type: '월차', status: '반려', reason: '해당일 지점 인원 부족으로 반려되었습니다. 관리자에게 문의해주세요.' }
+    ];
+  }
+  function fetchMyRequests(memberId, name, done, fail) {
+    if (DEMO) { setTimeout(function(){ done(demoRequests()); }, 150); return; }
+    var url = REQUEST_API_URL + '?action=myRequests&memberId=' + encodeURIComponent(memberId || '') +
+              '&name=' + encodeURIComponent(name || '');
+    var timer = setTimeout(function(){ fail(); fail = function(){}; done = function(){}; }, 12000);
+    fetch(url).then(function(r){ return r.json(); }).then(function(res){
+      clearTimeout(timer);
+      if (res && res.ok) done(res.rows || []); else fail();
+    }).catch(function(){ clearTimeout(timer); fail(); });
+  }
+  function requestCardsHtml(list) {
+    list = list.slice().sort(function(a, b) {
+      return parseDateForSort(b.requestedAt) - parseDateForSort(a.requestedAt) ||
+             parseDateForSort(b.startDate) - parseDateForSort(a.startDate);
+    }).slice(0, REQ_MAX_SHOW);
+    if (list.length === 0) return '<div class="empty" style="margin-top:0;">최근 휴가 신청 내역이 없습니다.</div>';
+    var html = '<div class="req-list">';
+    list.forEach(function(r) {
+      var st = statusInfo(r.status);
+      var type = String(r.type || '').trim();
+      var why = String(r.reason || '').trim();
+      html += '<div class="req-card"><div class="req-top">';
+      html += '<div><div class="req-date">' + fmtRange(r.startDate, r.endDate) + '</div>';
+      html += '<div class="req-sub">' + (type ? '<span class="tag ' + tagClass(type) + '">' + escapeHtml(type) + '</span>' : '') +
+              '<span>' + escapeHtml(fmtRequested(r.requestedAt)) + '</span></div></div>';
+      html += '<span class="req-status ' + st.cls + '">' + st.label + '</span></div>';
+      if (st.cls === 'st-rejected' && why) html += '<div class="req-reason">사유: ' + escapeHtml(why) + '</div>';
+      html += '</div>';
+    });
+    return html + '</div>';
+  }
+  // 자리(placeholder)만 먼저 그려두고, 신청 내역은 비동기로 채웁니다. (실패해도 기존 화면은 정상)
+  function requestSectionHtml(memberId, name) {
+    var id = 'reqbox' + (++reqSeq);
+    setTimeout(function() {
+      fetchMyRequests(memberId, name, function(rows) {
+        var el = document.getElementById(id); if (el) el.innerHTML = requestCardsHtml(rows);
+      }, function() {
+        var el = document.getElementById(id);
+        if (el) el.innerHTML = '<div class="empty" style="margin-top:0;">신청 현황을 불러오지 못했어요. 잠시 후 다시 조회해주세요.</div>';
+      });
+    }, 0);
+    return '<div class="section-title">신청 현황 <span class="badge-new">NEW</span></div>' +
+           '<div id="' + id + '"><div class="empty" style="margin-top:0;">불러오는 중...</div></div>';
+  }
+
+  function renderEmployeeBlock(name, branch, memberId, info, hist) {
+    var html = '';
+    html += '<div class="name-header"><span class="name">' + escapeHtml(name) + '</span>';
+    if (branch) html += '<span class="branch">' + escapeHtml(branch) + '</span>';
+    html += '</div>';
+
+    var role = info[COL_INFO.role] || '';
+
+    // 정직원(하이웍스로 휴가를 관리하는 인원)은 이 페이지에서 휴가 조회가 되지 않도록 막습니다.
+    // 이름은 아래 배열에 추가/삭제만 하면 되고, 코드의 다른 부분은 건드릴 필요가 없습니다.
+    var HIWORKS_MANAGED_NAMES = ['구연미', '박성배'];
+    if (HIWORKS_MANAGED_NAMES.indexOf(name) !== -1) {
+      html += '<div class="empty" style="margin-top:12px;">🌼 정직원 휴가 조회는 하이웍스를 이용해주세요.</div>';
+      html += '<hr class="divider">';
+      return html;
+    }
+
+    // 건수제/프리랜서(업무구분 C열에 "발급/프리", "발급/건수"로 기재됨)는
+    // 월차·연차가 애초에 생성되지 않는 근무 형태이므로,
+    // 전화번호(N열)로는 조회가 되더라도 휴가 통계·신청 대신 안내 문구만 보여줍니다.
+    var isNoLeaveRole = role.indexOf('프리') !== -1 || role.indexOf('건수') !== -1;
+    if (isNoLeaveRole) {
+      html += '<div class="empty" style="margin-top:12px;">🌼 ' + escapeHtml(role) + ' 매니저는 휴가(월차·연차)가 생성되지 않는 근무 형태입니다.</div>';
+      html += '<hr class="divider">';
+      return html;
+    }
+
+    var formUrl = buildFormUrl(name, branch, role, memberId);
+    html += '<button type="button" data-vac-url="' + escapeHtml(formUrl) + '" onclick="openVacationRequestForm(this)" style="background:linear-gradient(135deg,var(--pink),var(--purple)); border-color:var(--warn);">🌼 휴가 신청하기</button>';
+
+    html += requestSectionHtml(memberId, name);
+
+    html += '<div class="section-title">잔여 휴가</div>';
+    var hireDate = info[COL_INFO.hireDate] || '';
+    var monthly = info[COL_INFO.monthly] || '0';
+    var annual = info[COL_INFO.annual] || '0';
+    html += '<div class="stat-grid">';
+    html += '<div class="stat"><div class="label">잔여 월차</div><div class="value">' + escapeHtml(monthly) + '</div></div>';
+    html += '<div class="stat"><div class="label">잔여 연차</div><div class="value">' + escapeHtml(annual) + '</div></div>';
+    html += '</div>';
+    if (hireDate) html += '<div class="meta">입사일: ' + escapeHtml(hireDate) + '</div>';
+
+    html += '<div class="section-title">휴가 사용 내역</div>';
+    if (hist.length > 0) {
+      hist.sort(function(a, b) {
+        return parseDateForSort(b[COL_HIST.startDate]) - parseDateForSort(a[COL_HIST.startDate]);
+      });
+      var totalMonthly = 0, totalAnnual = 0;
+      hist.forEach(function(row) {
+        var d = parseFloat(row[COL_HIST.days]) || 0;
+        var t = (row[COL_HIST.type] || '').trim();
+        if (t.indexOf('월차') !== -1) totalMonthly += d;
+        else if (t.indexOf('연차') !== -1) totalAnnual += d;
+      });
+
+      html += '<div class="summary-row">';
+      html += '<div class="summary"><div class="label">월차 사용</div><div class="value">' + totalMonthly + '</div></div>';
+      html += '<div class="summary"><div class="label">연차 사용</div><div class="value">' + totalAnnual + '</div></div>';
+      html += '</div>';
+
+      html += '<div class="table-scroll"><table><thead><tr>';
+      html += '<th>번호</th><th>시작일</th><th>종료일</th><th>일수</th><th>종류</th><th>비고</th>';
+      html += '</tr></thead><tbody>';
+      hist.forEach(function(row, i) {
+        html += '<tr>';
+        html += '<td>' + (i + 1) + '</td>';
+        html += '<td>' + escapeHtml(row[COL_HIST.startDate] || '') + '</td>';
+        html += '<td>' + escapeHtml(row[COL_HIST.endDate] || '') + '</td>';
+        html += '<td>' + escapeHtml(row[COL_HIST.days] || '') + '</td>';
+        html += '<td><span class="tag ' + tagClass(row[COL_HIST.type]) + '">' + escapeHtml(row[COL_HIST.type] || '') + '</span></td>';
+        html += '<td class="note">' + escapeHtml(row[COL_HIST.note] || '') + '</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table></div>';
+    } else {
+      html += '<div class="empty" style="margin-top:0;">사용 내역이 없습니다.</div>';
+    }
+
+    html += '<hr class="divider">';
+    return html;
+  }
+
+</script>
+</body>
+</html>
